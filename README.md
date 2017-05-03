@@ -1,9 +1,11 @@
 cloverage
 =========
 
-Simple clojure coverage tool. Currently requires clojure 1.4.
+Simple clojure coverage tool.
 
-[![Build Status](https://secure.travis-ci.org/lshift/cloverage.png?branch=master)](http://travis-ci.org/lshift/cloverage)
+Travis: [![Build Status](https://travis-ci.org/cloverage/cloverage.svg?branch=master)](https://travis-ci.org/cloverage/cloverage)
+
+CircleCI: [![CircleCI](https://circleci.com/gh/cloverage/cloverage.svg?style=svg)](https://circleci.com/gh/cloverage/cloverage)
 
 ## Installation
 
@@ -11,8 +13,7 @@ Add [![Clojars Project](http://clojars.org/lein-cloverage/latest-version.svg)](h
 
 ## Testing frameworks support
 
-This library currently only supports clojure.test. You can get midje to work
-by wrapping facts in `deftest` declarations.
+Cloverage uses clojure.test by default. If you prefer use midje, pass the `--runner :midje` flag. (In older versions of Cloverage, you had to wrap your midje tests in clojure.test's deftest. This is no longer necessary.)
 
 ## Usage
 
@@ -36,6 +37,8 @@ Where *args-to-coverage* will usually be something like "-n 'ns.regex.*' -t 'tex
 
 ## Troubleshooting
 
+### IllegalArgumentException No matching field found: foo for class user.Bar
+
     IllegalArgumentException No matching field found: foo for class user.Bar  clojure.lang.Reflector.getInstanceField (Reflector.java:271)
 
 This is usually caused by protocols with methods starting with -. Before clojure 1.6:
@@ -53,44 +56,16 @@ IllegalArgumentException No matching field found: foo for class user.Bar  clojur
 
 Since cloverage *will* wrap the -foo symbol to track whether it's accessed, you will get this error. Upgrade to clojure 1.6.
 
-## Releases
+### Coverage reports 0% coverage after running tests
 
-In order to release to Clojars, you'll need to set `CLOJARS_USERNAME` and `CLOJARS_PASSWORD` in your environment variables.
+This happens if there is a namespace in your project that requires itself, for example:
 
-e.g. `CLOJARS_USERNAME=lshift CLOJARS_PASSWORD=<LShift Clojars password> lein release` in each of the cloverage and lein-cloverage folders.
+```clojure
+(ns foo.bar
+  (:require [foo.bar :as bar]))
+```
 
-## Changelog
-1.0.6
-- Features
-  - Option to exclude namespaces (#57/#73)
-  - Improved records fixes for Compojure (#66/#69)
-  - Option to specify a path to src/test namespaces (#70)
-  - Automatic push out of snapshot releases (#65)
-  - Handle records correctly (#59)
-  - Text summary of results (#50)
-- Bugfixes
-  - Correct test namespaces regex usage (#67)
-  - Cope with zero-namespace situations correctly (#62)
-
-1.0.5:
-- Bugfixes:
- - Work around AOT-ed inline functions not being wrappable (http://dev.clojure.org/jira/browse/CLJ-1330)
-
-1.0.4:
-- Features:
- - Minimal EMMA XML output format support.
- - [Coveralls](https://coveralls.io) output format.
- - Cloverage now exits with non-zero exit code when your tests fail
- - Total % coverage summary in index.html
-- Bugfixes:
- - Better instrumentation logic is no longer confused by macro/symbol shadowing
- - Support for (:require [(namespace.prefix (suffix :as rename))]) ns forms
- - Cloverage jars no longer include all dependencies
-
-1.0.3:
- - fix empty list crash
- - add letfn support
- - print html report URL after testing
+Remove the self-reference and the test coverage report should report correctly again.
 
 ## License
 
@@ -107,3 +82,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 Some code was taken from
 * Java IO interop (clojure-contrib/duck-streams) by Stuart Sierra (see cloverage/source.clj)
 * Topological sort (https://gist.github.com/1263783) by Alan Dipert (see cloverage/kahn.clj)
+

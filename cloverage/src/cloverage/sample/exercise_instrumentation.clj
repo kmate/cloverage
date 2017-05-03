@@ -1,4 +1,4 @@
-(ns cloverage.sample
+(ns cloverage.sample.exercise-instrumentation
   (:refer-clojure :exclude [loop])
   (:import java.lang.RuntimeException)
   (:use [clojure test]))
@@ -115,16 +115,16 @@
 (defn transaction-fn
   [n]
   (dosync
-    (cond
-      (zero? n) :zero
-      :else     (throw (RuntimeException. "FAIL TRANSACTION")))))
+   (cond
+     (zero? n) :zero
+     :else     (throw (RuntimeException. "FAIL TRANSACTION")))))
 
 (deftest failing-transaction
   (is (thrown? Exception (transaction-fn 1))))
 
 (letfn [(covered [] (+ 2 3))
         (not-covered []
-          {:and :not-tracked})
+                     {:and :not-tracked})
         (not-covered [] ({:preimage :image} :preimage))]
   (covered))
 
